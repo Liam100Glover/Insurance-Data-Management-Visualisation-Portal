@@ -6,3 +6,5 @@ The project involved:
 •	Data Visualization: Implemented graphical reports (e.g., claims by age, car type, education level) to highlight key trends and insights.
 •	Security Considerations: Ensured data access and handling followed best practices for web application security.
 Tech Stack: PHP, SQL, HTML, CSS
+
+Completed early 2025
