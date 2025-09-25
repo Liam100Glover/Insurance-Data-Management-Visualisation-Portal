@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Insurance Database Access Portal</title>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Roboto', sans-serif;
+            background-color: #f9f9f9;
+            margin: 0;
+            padding: 20px;
+            color: #333;
+        }
+        .header {
+            background-color: #005f73;
+            color: #edf6f9;
+            padding: 20px;
+            text-align: center;
+        }
+        .container {
+            margin-top: 30px;
+            text-align: center;
+        }
+        .button {
+            background-color: #005f73;
+            border: none;
+            color: white;
+            padding: 15px 32px;
+            text-align: center;
+            text-decoration: none;
+            display: inline-block;
+            font-size: 16px;
+            margin: 4px 2px;
+            cursor: pointer;
+            }
+        button:hover {
+            background-color: #0096c7; /* Lighter shade for hover */
+            transform: translateY(-2px);
+            opacity: 0.9; /* Opacity effect from driverDetails */
+        }
+        @media (max-width: 600px) {
+            .header, .container {
+                padding: 10px;
+            }
+            button {
+                padding: 12px 24px;
+                font-size: 16px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>Welcome to the Insurance Database Access Portal</h1>
+        <p>This page serves as the home page for accessing insurance database tables.</p>
+        <p>Please select a table to access:</p>
+    </div>
+    <div class="container">
+        <a href="driverDetails.html" class="button">Driver Details</a>
+        <a href="carDetails.html" class="button">Car Details</a>
+        <a href="claimDetails.html" class="button">Claims</a>
+        <br><br>
+        <a href="driverGraph.html" class="button">Driver Visualisation</a>
+        <a href="carGraph.html" class="button">Car Visualisation</a>
+        <a href="claimGraph.html" class="button">Claims Visualisation</a>
+    </div>
+</body>
+</html>

@@ -1,0 +1,234 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Car Details</title>
+    <link href="https://cdn.jsdelivr.net/npm/tabulator-tables/dist/css/tabulator.min.css" rel="stylesheet">
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f4;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+        }
+        .container {
+            width: 80%;
+            background: white;
+            padding: 20px;
+            box-shadow: 0 0 10px rgba(0,0,0,0.1);
+            border-radius: 8px;
+            text-align: center;
+        }
+        #tabulatorTable {
+            width: 100%;
+            margin-top: 20px;
+        }
+        form {
+            margin-top: 20px;
+        }
+        input, button {
+            margin-top: 10px;
+            padding: 10px;
+            border-radius: 5px;
+            border: 1px solid #ccc;
+            width: 20%;
+            box-sizing: border-box;
+        }
+        button {
+            cursor: pointer;
+            background-color: #007BFF;
+            color: white;
+            border: none;
+        }
+        button:hover {
+            opacity: 0.9;
+        }
+
+        /* Tabulator Pagination Button Styles */
+        .tabulator .tabulator-footer .tabulator-page {
+            background-color: #007BFF; /* Blue background */
+            color: white; /* White text */
+            border: none;
+            padding: 10px;
+            margin: 2px;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+        .tabulator .tabulator-footer .tabulator-page.active {
+            background-color: darkblue;
+        }
+        .tabulator .tabulator-footer .tabulator-page:hover {
+            opacity: 0.9;
+        }
+        .back-button {
+            position: absolute;
+            top: 80px;
+            left: 200px;
+            padding: 5px 8px; /* Smaller width */
+            font-size: 16px; /* Unchanged font size */
+            border-radius: 5px;
+            background-color: #007BFF;
+            color: white;
+            border: none;
+            cursor: pointer;
+        }
+        .back-button:hover {
+            opacity: 0.8;
+        }
+
+    </style>
+</head>
+<body>
+    <div class="container"> 
+        <button class="back-button" onclick="window.history.back();">Back</button>
+        <h1>Car Details Management System</h1>
+        <h2>Add/Edit/Search/Delete Details</h2>
+        <form id="carForm">
+            Car ID: <input type="number" id="carID" required><br>
+            Owner ID: <input type="number" id="ID"><br>
+            Car Type: <input type="text" id="CAR_TYPE"><br>
+            Red Car: <input type="checkbox" id="RED_CAR" value="1"><br>
+            Car Age: <input type="number" id="CAR_AGE"><br>
+            <button type="button" onclick="submitCar()">Insert</button>
+            <button type="button" onclick="searchCars()">Search</button>
+            <button type="button" onclick="deleteCar()">Delete</button>
+            <button type="button" onclick="updateCar()">Update</button>
+            <button type="reset">Clear</button>
+
+        </form>
+        
+        <h2>Details List</h2>
+        <div id="tabulatorTable"></div>
+    </div>
+
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/tabulator-tables/dist/js/tabulator.min.js"></script>
+
+    <script>
+        var table; // Declare globally
+    
+        // Ensure the DOM is fully loaded before interacting with it
+        document.addEventListener('DOMContentLoaded', function () {
+            // Initialize Tabulator on an element
+            table = new Tabulator("#tabulatorTable", {
+                height: "311px",
+                layout: "fitColumns",
+                pagination: true,
+                paginationSize: 15,
+                ajaxURL: "carDetails.php",  // Ensure this points to the correct PHP file
+                columns: [
+                    {title: "Car ID", field: "carID"},
+                    {title: "Owner ID", field: "ID"},
+                    {title: "Car Type", field: "CAR_TYPE"},
+                    {title: "Red Car", field: "RED_CAR", formatter: "tickCross"},
+                    {title: "Car Age", field: "CAR_AGE"}
+                ],
+                placeholder: "No data available"
+            });
+        });
+    
+        function submitCar() {
+        var formData = {
+        carID: $('#carID').val(),
+        ID: $('#ID').val(),
+        CAR_TYPE: $('#CAR_TYPE').val(),
+        RED_CAR: $('#RED_CAR').is(':checked') ? 1 : 0,
+        CAR_AGE: $('#CAR_AGE').val()
+        };
+
+        // Using jQuery for the AJAX request
+        $.ajax({
+            type: "POST",
+            url: "carDetails.php",
+            contentType: "application/json",
+            data: JSON.stringify(formData),
+            success: function(response) {
+                if (response.status === 'Car Details Added') {
+                    alert('Car added successfully!');
+                } else if (response.error) {
+                    alert('Error: ' + response.error);
+                }
+            },
+            error: function(xhr, status, error) {
+                alert('Failed to add car: ' + error);
+            }
+        });
+        }
+
+
+
+    function searchCars() {
+    var searchParams = {
+        carID: $('#carID').val(),
+        ID: $('#ID').val(),
+        CAR_TYPE: $('#CAR_TYPE').val(),
+        RED_CAR: $('#RED_CAR').is(':checked') ? 1 : 0,
+        CAR_AGE: $('#CAR_AGE').val()
+    };
+
+    Object.keys(searchParams).forEach((key) => {
+        if (!searchParams[key]) delete searchParams[key];
+    });
+
+    table.setData('carDetails.php', searchParams);
+    }
+
+    function deleteCar() {
+    var carID = $('#carID').val();
+    if (!carID) {
+        alert("Please enter a CarID to delete.");
+        return;
+    }
+
+    $.ajax({
+        type: "DELETE",
+        url: "carDetails.php",
+        contentType: "application/json",
+        data: JSON.stringify({ carID: carID }),
+        success: function(response) {
+            alert('Car deleted successfully!');
+        },
+        error: function(xhr, status, error) {
+            alert('Failed to delete car!');
+        }
+    });
+    }
+
+    function updateCar() {
+    var updateData = {
+        carID: $('#carID').val(),
+        ID: $('#ID').val(),
+        CAR_TYPE: $('#CAR_TYPE').val(),
+        RED_CAR: $('#RED_CAR').is(':checked') ? 1 : 0,
+        CAR_AGE: $('#CAR_AGE').val()
+    };
+
+    if (!updateData.carID) {
+        alert("Please enter a CarID to update.");
+        return;
+    }
+
+    $.ajax({
+        type: "PUT",
+        url: "carDetails.php",
+        contentType: "application/json",
+        data: JSON.stringify(updateData),
+        success: function(response) {
+            alert('Car details updated successfully!');
+        },
+        error: function(xhr, status, error) {
+            alert('Error updating car details!');
+        }
+    });
+
+    
+}
+</script>
+    
+</body>
+</html>

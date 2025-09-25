@@ -1,0 +1,259 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Driver Details</title>
+    <link href="https://cdn.jsdelivr.net/npm/tabulator-tables/dist/css/tabulator.min.css" rel="stylesheet">
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f4;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+        }
+        .container {
+            width: 80%;
+            background: white;
+            padding: 20px;
+            box-shadow: 0 0 10px rgba(0,0,0,0.1);
+            border-radius: 8px;
+            text-align: center;
+        }
+        #tabulatorTable {
+            width: 100%;
+            margin-top: 20px;
+        }
+        form {
+            margin-top: 20px;
+        }
+        input, button {
+            margin-top: 10px;
+            padding: 10px;
+            border-radius: 5px;
+            border: 1px solid #ccc;
+            width: 20%;
+            box-sizing: border-box;
+        }
+        button {
+            cursor: pointer;
+            background-color: #007BFF;
+            color: white;
+            border: none;
+        }
+        button:hover {
+            opacity: 0.9;
+        }
+
+        /* Tabulator Pagination Button Styles */
+        .tabulator .tabulator-footer .tabulator-page {
+            background-color: #007BFF; /* Blue background */
+            color: white; /* White text */
+            border: none;
+            padding: 10px;
+            margin: 2px;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+        .tabulator .tabulator-footer .tabulator-page.active {
+            background-color: darkblue;
+        }
+        .tabulator .tabulator-footer .tabulator-page:hover {
+            opacity: 0.9;
+        }
+        .back-button {
+            position: absolute;
+            top: 10px;
+            left: 200px;
+            padding: 5px 8px; /* Smaller width */
+            font-size: 16px; /* Unchanged font size */
+            border-radius: 5px;
+            background-color: #007BFF;
+            color: white;
+            border: none;
+            cursor: pointer;
+        }
+        .back-button:hover {
+            opacity: 0.8;
+        }
+
+    </style>
+</head>
+<body>
+    <div class="container">
+        <button class="back-button" onclick="window.history.back();">Back</button>
+        <h1>Driver Details Management System</h1>
+        <h2>Add/Edit/Search/Delete Driver</h2>
+        <form id="driverForm">
+            ID: <input type="text" id="ID" required><br>
+            Kids Driving: <input type="text" id="KIDSDRIV"><br>
+            Age: <input type="number" id="Age"><br>
+            Income: <input type="text" id="INCOME"><br>
+            Marriage Status: <input type="checkbox" id="MSTATUS" value="1"><br>
+            Gender: <input type="text" id="GENDER"><br>
+            Education: <input type="text" id="EDUCATION"><br>
+            Occupation: <input type="text" id="OCCUPATION"><br>
+            <button type="button" onclick="submitForm()">Insert</button>
+            <button type="button" onclick="searchDrivers()">Search</button>
+            <button type="button" onclick="deleteDriver()">Delete</button>
+            <button type="button" onclick="updateDriver()">Update</button>
+            <button type="reset">Clear</button>
+
+        </form>
+        <h2>Drivers List</h2>
+        <div id="tabulatorTable"></div>
+    </div>
+
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/tabulator-tables/dist/js/tabulator.min.js"></script>
+
+    <script>
+        function submitForm() {
+            var form = document.getElementById('driverForm');
+            
+            // Check if the form is valid
+            if (!form.checkValidity()) {
+                form.reportValidity();  // This will show the browser's default error messages
+                return;  // Prevent the form from submitting
+            }
+            var formData = {
+                ID: $('#ID').val(),
+                KIDSDRIV: $('#KIDSDRIV').val(),
+                Age: $('#Age').val(),
+                INCOME: $('#INCOME').val(),
+                MSTATUS: $('#MSTATUS').is(':checked') ? 1 : 0,
+                GENDER: $('#GENDER').val(),
+                EDUCATION: $('#EDUCATION').val(),
+                OCCUPATION: $('#OCCUPATION').val()
+            };
+
+            $.ajax({
+                type: "POST",
+                url: "driverDetails.php",
+                contentType: "application/json",
+                data: JSON.stringify(formData),
+                success: function(response) {
+                    console.log("Data submitted successfully:", response);
+                    alert('Driver added successfully!');
+                },
+                error: function(xhr, status, error) {
+                    console.error("Submission failed:", status, error);
+                    alert('Error adding driver!');
+                }
+            });
+        }
+        
+        function searchDrivers() {
+        var searchParams = {
+            ID: $('#ID').val(),
+            KIDSDRIV: $('#KIDSDRIV').val(),
+            Age: $('#Age').val(),
+            INCOME: $('#INCOME').val(),
+            MSTATUS: $('#MSTATUS').is(':checked') ? 1 : 0,
+            GENDER: $('#GENDER').val(),
+            EDUCATION: $('#EDUCATION').val(),
+            OCCUPATION: $('#OCCUPATION').val()
+        };
+
+        // Filtering out empty parameters
+        Object.keys(searchParams).forEach((key) => {
+            if (!searchParams[key]) delete searchParams[key];
+        });
+
+        // Assuming 'table' is your Tabulator instance available globally
+        table.setData('driverDetails.php', searchParams);
+    }
+
+        
+        function deleteDriver() {
+            var deleteID = document.getElementById('ID').value;
+
+            if (!deleteID) {
+                alert("Please enter an ID to delete.");
+                return;
+            }
+
+            $.ajax({
+                type: "DELETE",
+                url: "driverDetails.php",
+                contentType: "application/json",
+                data: JSON.stringify({ ID: deleteID }),
+                success: function(response) {
+                    console.log("Delete successful:", response);
+                    alert('Driver deleted successfully!');
+                    // Optional: clear the form or update the page state
+                },
+                error: function(xhr, status, error) {
+                    console.error("Delete failed:", status, error);
+                    alert('Error deleting driver!');
+                }
+            });
+        }
+        
+        function updateDriver() {
+            var updateData = {
+            ID: $('#ID').val(), // ID is required for update
+            KIDSDRIV: $('#KIDSDRIV').val(),
+            Age: $('#Age').val(),
+            INCOME: $('#INCOME').val(),
+            MSTATUS: $('#MSTATUS').is(':checked') ? 1 : 0,
+            GENDER: $('#GENDER').val(),
+            EDUCATION: $('#EDUCATION').val(),
+            OCCUPATION: $('#OCCUPATION').val()
+            };
+
+            // Filter out empty fields, except the ID
+            Object.keys(updateData).forEach(key => {
+                if (!updateData[key] && key !== 'ID') delete updateData[key];
+            });
+
+            if (!updateData.ID) {
+                alert("Please enter an ID to update.");
+                return;
+            }
+
+            $.ajax({
+                type: "PUT",
+                url: "driverDetails.php",
+                contentType: "application/json",
+                data: JSON.stringify(updateData),
+                success: function(response) {
+                    console.log("Update successful:", response);
+                    alert('Driver updated successfully!');
+                },
+                error: function(xhr, status, error) {
+                    console.error("Update failed:", status, error);
+                    alert('Error updating driver!');
+                }
+                });
+        }
+        var table; // Declare globally
+
+        document.addEventListener('DOMContentLoaded', function () {
+            table = new Tabulator("#tabulatorTable", {
+                height: "311px",
+                layout: "fitColumns",
+                pagination: true,
+                paginationSize: 15,
+                ajaxURL: "driverDetails.php",
+                columns: [
+                    {title: "ID", field: "ID"},
+                    {title: "KIDSDRIV", field: "KIDSDRIV"},
+                    {title: "Age", field: "Age"},
+                    {title: "INCOME", field: "INCOME"},
+                    {title: "MSTATUS", field: "MSTATUS", formatter:"tickCross"},
+                    {title: "GENDER", field: "GENDER"},
+                    {title: "EDUCATION", field: "EDUCATION"},
+                    {title: "OCCUPATION", field: "OCCUPATION"}
+                ],
+                placeholder: "No data available"
+            });
+        });
+
+    </script>
+</body>
+</html>

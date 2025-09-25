@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Car Graphs</title>
+<link href="https://fonts.googleapis.com/css?family=Roboto:400,700&display=swap" rel="stylesheet">
+<style>
+    html, body {
+        height: 100%; /* Full height for the root element */
+        margin: 0;
+        padding: 0;
+        display: flex;
+        justify-content: center; /* Center horizontally */
+        align-items: center; /* Center vertically */
+        background-color: #f9f9f9;
+        font-family: 'Roboto', sans-serif;
+        color: #333;
+    }
+    .container {
+        display: flex;
+        flex-direction: column; /* Organizes children in a vertical stack */
+        align-items: center; /* Centers children horizontally */
+        width: 100%; /* Adjust width as needed */
+        text-align: center;
+    }
+    #graphContainer {
+        width: 100%; /* Full width to align with the container */
+        display: flex;
+        justify-content: center; /* Center horizontally */
+        align-items: center; /* Center vertically */
+    }
+    button {
+        cursor: pointer;
+        background-color: #007BFF;
+        color: white;
+        border: none;
+        padding: 15px 32px;
+        margin: 5px;
+    }
+    button:hover {
+        opacity: 0.9;
+    }
+    @media (max-width: 600px) {
+        button {
+            padding: 10px;
+            font-size: 16px;
+        }
+    }
+</style>
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+<script>
+
+function reloadPage() {
+    window.location.reload(); 
+  }
+
+function loadGraph(graphId) {
+    var iframeSrc = '';
+    switch(graphId) {
+        case 'graph1':
+            iframeSrc = 'redcarclaims.php';
+            break;
+        case 'graph2':
+            iframeSrc = 'clmamtincome.php';
+            break;
+        case 'graph3':
+            iframeSrc = 'avgagecars.php';
+            break;
+        case 'graph4':
+            iframeSrc = 'redvsnonred.php';
+            break;
+        default:
+            iframeSrc = ''; 
+    }
+
+    var iframe = '<iframe src="' + iframeSrc + '" width="100%" height="400" frameborder="0"></iframe>';
+    $('#graphContainer').html(iframe);
+}
+</script>
+</head>
+<body>
+<div class="container">
+    <div class="button-group">
+        <button onclick="loadGraph('graph1')">Red Car Claim Rate</button>
+        <button onclick="loadGraph('graph2')">Claim Amount Vs Income</button>
+        <button onclick="loadGraph('graph3')">Show Average Car Age By Type</button>
+        <button onclick="loadGraph('graph4')">Show Red Vs Non Red</button>
+        <br><br><br>
+        <div id="graphContainer"></div> 
+        <br><br>
+        <button class="back-button" onclick="window.history.back();">Back</button>
+        <button onclick="reloadPage()">Clear</button>
+    </div>
+</div>
+</body>
+</html>

@@ -1,0 +1,249 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Claim Details</title>
+    <link href="https://cdn.jsdelivr.net/npm/tabulator-tables/dist/css/tabulator.min.css" rel="stylesheet">
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f4;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+        }
+        .container {
+            width: 80%;
+            background: white;
+            padding: 20px;
+            box-shadow: 0 0 10px rgba(0,0,0,0.1);
+            border-radius: 8px;
+            text-align: center;
+        }
+        #tabulatorTable {
+            width: 100%;
+            margin-top: 20px;
+        }
+        form {
+            margin-top: 20px;
+        }
+        input, button {
+            margin-top: 10px;
+            padding: 10px;
+            border-radius: 5px;
+            border: 1px solid #ccc;
+            width: 20%;
+            box-sizing: border-box;
+        }
+        button {
+            cursor: pointer;
+            background-color: #007BFF;
+            color: white;
+            border: none;
+        }
+        button:hover {
+            opacity: 0.9;
+        }
+
+        .tabulator .tabulator-footer .tabulator-page {
+            background-color: #007BFF;
+            color: white;
+            border: none;
+            padding: 10px;
+            margin: 2px;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+        .tabulator .tabulator-footer .tabulator-page.active {
+            background-color: darkblue;
+        }
+        .tabulator .tabulator-footer .tabulator-page:hover {
+            opacity: 0.9;
+        }
+        .back-button {
+            position: absolute;
+            top: 10px;
+            left: 200px;
+            padding: 5px 8px;
+            font-size: 16px;
+            border-radius: 5px;
+            background-color: #007BFF;
+            color: white;
+            border: none;
+            cursor: pointer;
+        }
+        .back-button:hover {
+            opacity: 0.8;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <button class="back-button" onclick="window.history.back();">Back</button>
+        <h1>Claim Details Management System</h1>
+        <h2>Add/Edit/Search/Delete Claim</h2>
+        <form id="claimForm">
+            Claim ID: <input type="text" id="claimID" required><br>
+            Car ID: <input type="text" id="carID"><br>
+            Driver ID: <input type="text" id="driverID"><br>
+            Claim Flag: <input type="checkbox" id="claimFlag" value="1"><br>
+            Claim Amount: <input type="text" id="claimAmount"><br>
+            Claim Frequency: <input type="number" id="claimFrequency"><br>
+            Old Claim Amount: <input type="text" id="oldClaimAmount"><br>
+            <button type="button" onclick="submitForm()">Insert</button>
+            <button type="button" onclick="searchClaims()">Search</button>
+            <button type="button" onclick="deleteClaim()">Delete</button>
+            <button type="button" onclick="updateClaim()">Update</button>
+            <button type="reset">Clear</button>
+        </form>
+        <h2>Claims List</h2>
+        <div id="tabulatorTable"></div>
+    </div>
+
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/tabulator-tables/dist/js/tabulator.min.js"></script>
+
+    <script>
+        function submitForm() {
+            var form = document.getElementById('claimForm');
+            
+            // Check if the form is valid
+            if (!form.checkValidity()) {
+                form.reportValidity();  // This will show the browser's default error messages
+                return;  // Prevent the form from submitting
+            }
+            var formData = {
+                claimID: $('#claimID').val(),
+                carID: $('#carID').val(),
+                ID: $('#driverID').val(),
+                CLAIM_FLAG: $('#claimFlag').is(':checked') ? 1 : 0,
+                CLM_AMT: $('#claimAmount').val(),
+                CLM_FREQ: $('#claimFrequency').val(),
+                OLDCLAIM: $('#oldClaimAmount').val()
+            };
+    
+            $.ajax({
+                type: "POST",
+                url: "claimDetails.php",  // Ensure this URL points to the server-side script handling your claims
+                contentType: "application/json",
+                data: JSON.stringify(formData),
+                success: function(response) {
+                    console.log("Data submitted successfully:", response);
+                    alert('Claim added successfully!');
+                },
+                error: function(xhr, status, error) {
+                    console.error("Submission failed:", status, error);
+                    alert('Error adding claim!');
+                }
+            });
+        }
+    
+        function searchClaims() {
+            var searchParams = {
+                claimID: $('#claimID').val(),
+                carID: $('#carID').val(),
+                ID: $('#driverID').val(),
+                CLM_AMT: $('#claimAmount').val(),
+                CLM_FREQ: $('#claimFrequency').val(),
+                OLDCLAIM: $('#oldClaimAmount').val()
+            };
+    
+            // Filtering out empty parameters
+            Object.keys(searchParams).forEach((key) => {
+                if (!searchParams[key]) delete searchParams[key];
+            });
+    
+            // Assuming 'table' is your Tabulator instance available globally
+            table.setData('claimDetails.php', searchParams);
+        }
+    
+        function deleteClaim() {
+            var deleteID = $('#claimID').val(); // Get the claim ID for deletion
+    
+            if (!deleteID) {
+                alert("Please enter a Claim ID to delete.");
+                return;
+            }
+    
+            $.ajax({
+                type: "DELETE",
+                url: "claimDetails.php", // Ensure this URL points to your server-side script
+                contentType: "application/json",
+                data: JSON.stringify({ claimID: deleteID }),
+                success: function(response) {
+                    console.log("Delete successful:", response);
+                    alert('Claim deleted successfully!');
+                },
+                error: function(xhr, status, error) {
+                    console.error("Delete failed:", status, error);
+                    alert('Error deleting claim!');
+                }
+            });
+        }
+    
+        function updateClaim() {
+            var updateData = {
+                claimID: $('#claimID').val(), // Claim ID is required for update
+                carID: $('#carID').val(),
+                ID: $('#driverID').val(),
+                CLAIM_FLAG: $('#claimFlag').is(':checked') ? 1 : 0,
+                CLM_AMT: $('#claimAmount').val(),
+                CLM_FREQ: $('#claimFrequency').val(),
+                OLDCLAIM: $('#oldClaimAmount').val()
+            };
+    
+            // Filter out empty fields, except the claim ID
+            Object.keys(updateData).forEach(key => {
+                if (!updateData[key] && key !== 'claimID') delete updateData[key];
+            });
+    
+            if (!updateData.claimID) {
+                alert("Please enter a Claim ID to update.");
+                return;
+            }
+    
+            $.ajax({
+                type: "PUT",
+                url: "claimDetails.php", // URL to your server-side script
+                contentType: "application/json",
+                data: JSON.stringify(updateData),
+                success: function(response) {
+                    console.log("Update successful:", response);
+                    alert('Claim updated successfully!');
+                },
+                error: function(xhr, status, error) {
+                    console.error("Update failed:", status, error);
+                    alert('Error updating claim!');
+                }
+            });
+        }
+    
+        // Initialize Tabulator on document ready
+        var table;
+        document.addEventListener('DOMContentLoaded', function () {
+            table = new Tabulator("#tabulatorTable", {
+                height: "311px",
+                layout: "fitColumns",
+                pagination: true,
+                paginationSize: 15,
+                ajaxURL: "claimDetails.php",
+                columns: [
+                    {title: "Claim ID", field: "claimID"},
+                    {title: "Car ID", field: "carID"},
+                    {title: "Driver ID", field: "ID"},
+                    {title: "Claim Flag", field: "CLAIM_FLAG", formatter:"tickCross"},
+                    {title: "Claim Amount", field: "CLM_AMT"},
+                    {title: "Claim Frequency", field: "CLM_FREQ"},
+                    {title: "Old Claim Amount", field: "OLDCLAIM"}
+                ],
+                placeholder: "No data available"
+            });
+        });
+    </script>
+</body>
+</html>
+    
